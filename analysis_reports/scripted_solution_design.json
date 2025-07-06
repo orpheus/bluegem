@@ -1,0 +1,591 @@
+{
+  "modules": [
+    {
+      "name": "pipeline_initializer",
+      "stage": "initialization",
+      "description": "Initialize pipeline environment, load configuration, and prepare resources",
+      "input_format": "configuration_file",
+      "output_format": "pipeline_context",
+      "dependencies": [
+        "config_manager",
+        "logger",
+        "resource_allocator"
+      ],
+      "error_handling": "fail_fast",
+      "retry_config": {
+        "max_attempts": 3,
+        "backoff_factor": 1.5
+      },
+      "monitoring_level": "comprehensive",
+      "performance_requirements": {
+        "max_startup_time_seconds": 30,
+        "memory_allocation_mb": 100,
+        "cpu_usage_percent": 10
+      }
+    },
+    {
+      "name": "input_validator",
+      "stage": "input_validation",
+      "description": "Validate input CSV format, URLs, and data integrity",
+      "input_format": "csv_file",
+      "output_format": "validated_product_list",
+      "dependencies": [
+        "pandas",
+        "validators",
+        "data_schema"
+      ],
+      "error_handling": "fail_fast",
+      "retry_config": {
+        "max_attempts": 1,
+        "backoff_factor": 1.0
+      },
+      "monitoring_level": "detailed",
+      "performance_requirements": {
+        "max_validation_time_seconds": 60,
+        "memory_per_1k_products_mb": 50,
+        "validation_accuracy_percent": 100
+      }
+    },
+    {
+      "name": "batch_scraper",
+      "stage": "web_scraping",
+      "description": "Parallel web scraping with fallback strategies and rate limiting",
+      "input_format": "validated_product_list",
+      "output_format": "scrape_results",
+      "dependencies": [
+        "stealth_scraper",
+        "selenium",
+        "requests",
+        "firecrawl"
+      ],
+      "error_handling": "fallback_method",
+      "retry_config": {
+        "max_attempts": 3,
+        "backoff_factor": 2.0,
+        "fallback_methods": [
+          "requests",
+          "selenium",
+          "firecrawl"
+        ]
+      },
+      "monitoring_level": "comprehensive",
+      "performance_requirements": {
+        "concurrent_requests": 10,
+        "success_rate_target_percent": 85,
+        "average_response_time_seconds": 10,
+        "rate_limit_requests_per_minute": 60
+      }
+    },
+    {
+      "name": "content_processor",
+      "stage": "content_processing",
+      "description": "Clean and structure HTML content for LLM processing",
+      "input_format": "scrape_results",
+      "output_format": "processed_content",
+      "dependencies": [
+        "html_processor",
+        "beautifulsoup4",
+        "content_filters"
+      ],
+      "error_handling": "continue_on_error",
+      "retry_config": {
+        "max_attempts": 2,
+        "backoff_factor": 1.0
+      },
+      "monitoring_level": "detailed",
+      "performance_requirements": {
+        "processing_time_per_page_seconds": 2,
+        "content_quality_score_minimum": 0.7,
+        "memory_usage_mb": 200
+      }
+    },
+    {
+      "name": "llm_extractor",
+      "stage": "llm_extraction",
+      "description": "Extract structured product data using LLM with batch processing",
+      "input_format": "processed_content",
+      "output_format": "extracted_data",
+      "dependencies": [
+        "openai",
+        "prompt_templator",
+        "batch_processor"
+      ],
+      "error_handling": "retry_with_backoff",
+      "retry_config": {
+        "max_attempts": 5,
+        "backoff_factor": 2.0,
+        "exponential_backoff": true,
+        "circuit_breaker": true
+      },
+      "monitoring_level": "comprehensive",
+      "performance_requirements": {
+        "batch_size": 10,
+        "api_rate_limit_rpm": 1000,
+        "extraction_quality_minimum": 0.75,
+        "timeout_seconds": 30
+      }
+    },
+    {
+      "name": "data_validator",
+      "stage": "data_validation",
+      "description": "Validate extracted data quality and completeness",
+      "input_format": "extracted_data",
+      "output_format": "validated_data",
+      "dependencies": [
+        "eval_product_extraction",
+        "data_quality_checker"
+      ],
+      "error_handling": "continue_on_error",
+      "retry_config": {
+        "max_attempts": 1,
+        "backoff_factor": 1.0
+      },
+      "monitoring_level": "detailed",
+      "performance_requirements": {
+        "validation_time_per_product_seconds": 1,
+        "quality_threshold": 0.6,
+        "completeness_threshold_percent": 90
+      }
+    },
+    {
+      "name": "output_generator",
+      "stage": "output_generation",
+      "description": "Generate final CSV, reports, and verification files",
+      "input_format": "validated_data",
+      "output_format": "output_files",
+      "dependencies": [
+        "pandas",
+        "report_generator",
+        "csv_formatter"
+      ],
+      "error_handling": "fail_fast",
+      "retry_config": {
+        "max_attempts": 3,
+        "backoff_factor": 1.0
+      },
+      "monitoring_level": "basic",
+      "performance_requirements": {
+        "file_generation_time_seconds": 60,
+        "file_size_limit_mb": 100,
+        "format_compliance": 100
+      }
+    },
+    {
+      "name": "pipeline_cleanup",
+      "stage": "cleanup",
+      "description": "Clean up temporary files, close connections, and finalize logging",
+      "input_format": "pipeline_context",
+      "output_format": "cleanup_report",
+      "dependencies": [
+        "file_manager",
+        "connection_manager",
+        "logger"
+      ],
+      "error_handling": "continue_on_error",
+      "retry_config": {
+        "max_attempts": 2,
+        "backoff_factor": 1.0
+      },
+      "monitoring_level": "basic",
+      "performance_requirements": {
+        "cleanup_time_seconds": 30,
+        "resource_cleanup_percent": 100
+      }
+    }
+  ],
+  "execution_flow": {
+    "sequential_stages": [
+      "initialization",
+      "input_validation",
+      "web_scraping",
+      "content_processing",
+      "llm_extraction",
+      "data_validation",
+      "output_generation",
+      "cleanup"
+    ],
+    "parallel_execution": {
+      "web_scraping": {
+        "parallel_workers": 10,
+        "worker_type": "thread",
+        "load_balancing": "round_robin",
+        "queue_management": "priority_based"
+      },
+      "content_processing": {
+        "parallel_workers": 5,
+        "worker_type": "process",
+        "batch_size": 20
+      },
+      "llm_extraction": {
+        "parallel_workers": 3,
+        "worker_type": "thread",
+        "batch_size": 10,
+        "rate_limiting": true
+      }
+    },
+    "checkpoint_system": {
+      "enabled": true,
+      "checkpoint_frequency": "after_each_stage",
+      "recovery_strategy": "resume_from_checkpoint",
+      "checkpoint_storage": "filesystem"
+    },
+    "progress_tracking": {
+      "real_time_updates": true,
+      "progress_persistence": true,
+      "eta_calculation": true,
+      "status_notifications": [
+        "start",
+        "25%",
+        "50%",
+        "75%",
+        "complete",
+        "error"
+      ]
+    }
+  },
+  "error_handling_framework": {
+    "error_categories": {
+      "system_errors": {
+        "description": "Infrastructure and system-level errors",
+        "examples": [
+          "out_of_memory",
+          "disk_full",
+          "network_unavailable"
+        ],
+        "default_strategy": "fail_fast",
+        "escalation": "immediate"
+      },
+      "data_errors": {
+        "description": "Input data quality and format errors",
+        "examples": [
+          "invalid_url",
+          "malformed_csv",
+          "missing_fields"
+        ],
+        "default_strategy": "continue_on_error",
+        "escalation": "after_threshold"
+      },
+      "external_errors": {
+        "description": "External service and API errors",
+        "examples": [
+          "api_rate_limit",
+          "service_unavailable",
+          "timeout"
+        ],
+        "default_strategy": "retry_with_backoff",
+        "escalation": "progressive"
+      },
+      "quality_errors": {
+        "description": "Data quality and extraction errors",
+        "examples": [
+          "low_quality_extraction",
+          "validation_failure",
+          "anomaly_detected"
+        ],
+        "default_strategy": "continue_on_error",
+        "escalation": "batch_review"
+      }
+    },
+    "retry_mechanisms": {
+      "exponential_backoff": {
+        "initial_delay_seconds": 1,
+        "max_delay_seconds": 300,
+        "backoff_multiplier": 2.0,
+        "jitter": true
+      },
+      "linear_backoff": {
+        "initial_delay_seconds": 5,
+        "increment_seconds": 5,
+        "max_delay_seconds": 60
+      },
+      "circuit_breaker": {
+        "failure_threshold": 5,
+        "timeout_seconds": 60,
+        "half_open_max_calls": 3
+      }
+    },
+    "fallback_strategies": {
+      "scraping_fallback": [
+        "requests",
+        "selenium",
+        "firecrawl",
+        "manual_queue"
+      ],
+      "llm_fallback": [
+        "primary_model",
+        "secondary_model",
+        "template_based"
+      ],
+      "validation_fallback": [
+        "automated",
+        "semi_automated",
+        "manual_review"
+      ]
+    },
+    "error_recovery": {
+      "partial_recovery": {
+        "enabled": true,
+        "recovery_percentage_threshold": 70,
+        "incomplete_handling": "separate_pipeline"
+      },
+      "state_restoration": {
+        "checkpoint_based": true,
+        "transaction_rollback": true,
+        "data_consistency_checks": true
+      }
+    }
+  },
+  "monitoring_system": {
+    "logging_framework": {
+      "log_levels": [
+        "DEBUG",
+        "INFO",
+        "WARNING",
+        "ERROR",
+        "CRITICAL"
+      ],
+      "structured_logging": true,
+      "log_format": "JSON",
+      "log_rotation": {
+        "max_size_mb": 100,
+        "backup_count": 10,
+        "compression": true
+      },
+      "log_destinations": [
+        "file",
+        "console",
+        "elasticsearch"
+      ],
+      "correlation_ids": true
+    },
+    "metrics_collection": {
+      "system_metrics": [
+        "cpu_usage",
+        "memory_usage",
+        "disk_usage",
+        "network_io",
+        "process_count"
+      ],
+      "application_metrics": [
+        "processing_rate",
+        "success_rate",
+        "error_rate",
+        "queue_depth",
+        "response_time",
+        "throughput"
+      ],
+      "business_metrics": [
+        "products_processed",
+        "extraction_quality",
+        "manual_intervention_rate",
+        "cost_per_product",
+        "time_to_completion"
+      ],
+      "collection_interval_seconds": 30
+    },
+    "alerting_system": {
+      "alert_channels": [
+        "email",
+        "slack",
+        "pagerduty",
+        "webhook"
+      ],
+      "alert_conditions": {
+        "error_rate_threshold": 10,
+        "processing_delay_minutes": 30,
+        "memory_usage_threshold": 85,
+        "disk_usage_threshold": 90,
+        "api_failure_count": 5
+      },
+      "escalation_policies": {
+        "low_priority": {
+          "delay_minutes": 30,
+          "repeat_interval": 60
+        },
+        "medium_priority": {
+          "delay_minutes": 10,
+          "repeat_interval": 30
+        },
+        "high_priority": {
+          "delay_minutes": 0,
+          "repeat_interval": 15
+        }
+      }
+    },
+    "dashboards": {
+      "operational_dashboard": {
+        "components": [
+          "pipeline_status",
+          "processing_metrics",
+          "error_summary"
+        ],
+        "refresh_interval_seconds": 10,
+        "target_audience": "operations_team"
+      },
+      "business_dashboard": {
+        "components": [
+          "productivity_metrics",
+          "quality_trends",
+          "cost_analysis"
+        ],
+        "refresh_interval_seconds": 300,
+        "target_audience": "business_stakeholders"
+      },
+      "technical_dashboard": {
+        "components": [
+          "system_health",
+          "performance_metrics",
+          "debug_information"
+        ],
+        "refresh_interval_seconds": 30,
+        "target_audience": "development_team"
+      }
+    }
+  },
+  "maintenance_procedures": {
+    "regular_maintenance": {
+      "daily_tasks": [
+        "log_file_rotation",
+        "disk_space_cleanup",
+        "health_check_validation",
+        "backup_verification"
+      ],
+      "weekly_tasks": [
+        "performance_analysis",
+        "error_pattern_review",
+        "capacity_planning_update",
+        "security_patch_assessment"
+      ],
+      "monthly_tasks": [
+        "comprehensive_system_audit",
+        "configuration_review",
+        "disaster_recovery_testing",
+        "performance_optimization"
+      ]
+    },
+    "update_procedures": {
+      "configuration_updates": {
+        "validation_required": true,
+        "rollback_plan": "automatic",
+        "testing_environment": "staging",
+        "approval_process": "single_approver"
+      },
+      "dependency_updates": {
+        "security_updates": {
+          "priority": "high",
+          "testing_required": true,
+          "rollback_plan": "automatic",
+          "notification": "immediate"
+        },
+        "feature_updates": {
+          "priority": "medium",
+          "testing_required": true,
+          "rollback_plan": "manual",
+          "notification": "scheduled"
+        }
+      },
+      "code_updates": {
+        "testing_pipeline": [
+          "unit_tests",
+          "integration_tests",
+          "performance_tests",
+          "security_tests"
+        ],
+        "deployment_strategy": "blue_green",
+        "rollback_time_limit_minutes": 15
+      }
+    },
+    "troubleshooting_procedures": {
+      "common_issues": {
+        "high_memory_usage": {
+          "diagnostic_steps": [
+            "check_memory_metrics",
+            "identify_memory_leaks",
+            "review_batch_sizes",
+            "analyze_concurrent_processes"
+          ],
+          "resolution_steps": [
+            "restart_high_memory_processes",
+            "reduce_batch_sizes",
+            "increase_system_memory",
+            "optimize_data_structures"
+          ]
+        },
+        "api_rate_limiting": {
+          "diagnostic_steps": [
+            "check_api_rate_limits",
+            "review_request_patterns",
+            "analyze_error_logs",
+            "verify_rate_limiting_configuration"
+          ],
+          "resolution_steps": [
+            "implement_exponential_backoff",
+            "reduce_concurrent_requests",
+            "upgrade_api_plan",
+            "implement_request_caching"
+          ]
+        }
+      },
+      "escalation_procedures": {
+        "level_1": "automated_recovery",
+        "level_2": "operations_team",
+        "level_3": "development_team",
+        "level_4": "external_support"
+      }
+    }
+  },
+  "deployment_configuration": {
+    "environment_requirements": {
+      "minimum_system_specs": {
+        "cpu_cores": 4,
+        "ram_gb": 8,
+        "disk_space_gb": 100,
+        "network_bandwidth_mbps": 50
+      },
+      "recommended_system_specs": {
+        "cpu_cores": 8,
+        "ram_gb": 16,
+        "disk_space_gb": 500,
+        "network_bandwidth_mbps": 100
+      },
+      "operating_system": [
+        "Ubuntu 20.04+",
+        "CentOS 8+",
+        "Amazon Linux 2"
+      ],
+      "python_version": "3.9+"
+    },
+    "containerization": {
+      "docker_support": true,
+      "base_image": "python:3.11-slim",
+      "multi_stage_build": true,
+      "security_scanning": true,
+      "image_optimization": true
+    },
+    "orchestration": {
+      "kubernetes_support": true,
+      "helm_charts": true,
+      "auto_scaling": {
+        "horizontal_pod_autoscaler": true,
+        "vertical_pod_autoscaler": true,
+        "custom_metrics": [
+          "queue_depth",
+          "processing_rate"
+        ]
+      },
+      "resource_limits": {
+        "cpu_request": "500m",
+        "cpu_limit": "2000m",
+        "memory_request": "1Gi",
+        "memory_limit": "4Gi"
+      }
+    },
+    "configuration_management": {
+      "environment_variables": true,
+      "config_files": true,
+      "secrets_management": "kubernetes_secrets",
+      "configuration_validation": true,
+      "hot_reloading": false
+    }
+  }
+}
