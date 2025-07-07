@@ -11,12 +11,13 @@ from typing import List, Dict, Any, Optional, Tuple
 from urllib.parse import urlparse
 import time
 
-# Add tools directory to path
-sys.path.append(str(Path(__file__).parent.parent.parent / 'tools'))
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent
+sys.path.append(str(project_root))
 
 # Import existing scraper
-from stealth_scraper import StealthScraper, ScrapeResult, ScrapingMethod
-from html_processor import HTMLProcessor
+from tools.stealth_scraper import StealthScraper, ScrapeResult, ScrapingMethod
+from tools.html_processor import HTMLProcessor
 
 # Import new components
 from tools.data_management.product_cache import ProductCache

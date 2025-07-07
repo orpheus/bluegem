@@ -28,7 +28,7 @@ class ProjectDB(Base):
     # Core fields
     name = Column(String(200), nullable=False)
     status = Column(String(20), default="draft", nullable=False)
-    metadata = Column(JSON, default={})
+    project_metadata = Column(JSON, default={})
     
     # Timestamps
     created_at = Column(DateTime, default=func.now(), nullable=False)

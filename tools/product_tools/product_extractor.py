@@ -11,12 +11,13 @@ from typing import Dict, Any, Optional, List
 from openai import AsyncOpenAI
 import asyncio
 
-# Add tools directory to path
-sys.path.append(str(Path(__file__).parent.parent.parent / 'tools'))
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent
+sys.path.append(str(project_root))
 
 # Import existing components
-from html_processor import ProcessedHTML
-from prompt_templator import PromptTemplator
+from tools.html_processor import ProcessedHTML
+from tools.prompt_templator import PromptTemplator
 
 # Import new components
 from models.schemas import Product

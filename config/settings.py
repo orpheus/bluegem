@@ -15,7 +15,6 @@ class Settings(BaseSettings):
     
     # Database configuration
     database_url: str = Field(
-        default="postgresql+asyncpg://user:pass@localhost/specbook",
         description="PostgreSQL connection URL"
     )
     database_pool_size: int = Field(default=10, ge=1, le=100)
