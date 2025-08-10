@@ -1,0 +1,86 @@
+{
+  "timestamp": "2025-07-06T16:32:42.507591",
+  "analysis_version": "1.0",
+  "scraping_performance": {
+    "total_products": 87,
+    "success_rate": 0.8390804597701149,
+    "method_success_rates": {
+      "count": {
+        "firecrawl": 10,
+        "requests": 77
+      },
+      "mean": {
+        "firecrawl": 0.0,
+        "requests": 0.948051948051948
+      }
+    },
+    "error_patterns": {
+      "Firecrawl is not supported": 10,
+      "Page not found": 4
+    },
+    "content_metrics": {
+      "avg_length": 396984.397260274,
+      "min_length": "11333",
+      "max_length": "1404020"
+    }
+  },
+  "llm_extraction_quality": {
+    "total_extractions": 73,
+    "avg_score": 0.7638356164383568,
+    "min_score": 0.493,
+    "max_score": 0.935,
+    "json_parse_success_rate": 1.0,
+    "required_fields_success_rate": 1.0,
+    "url_validity_rate": 0.7534246575342466,
+    "field_avg_scores": {
+      "image_url": 0.6986301369863017,
+      "product_link": 0.6794520547945206,
+      "type": 0.7369863013698639,
+      "description": 1.0,
+      "model_no": 0.8232876712328769,
+      "qty": 0.7945205479452045,
+      "consistency": 1.0
+    },
+    "low_quality_extractions": [
+      1,
+      23,
+      25,
+      28,
+      34,
+      44,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      67,
+      68,
+      69,
+      70
+    ],
+    "common_issues": {}
+  },
+  "error_patterns": {
+    "log_errors": 0,
+    "log_warnings": 2,
+    "error_types": {}
+  },
+  "pipeline_efficiency": {
+    "total_products": 87,
+    "successful_products": "73",
+    "success_rate": 0.8390804597701149,
+    "estimated_processing_time_minutes": 14.5,
+    "estimated_processing_time_hours": 0.24166666666666667,
+    "throughput_products_per_hour": 360.0,
+    "manual_verification_time_minutes": "219",
+    "manual_verification_time_hours": 3.65
+  },
+  "data_quality": {
+    "json_validity_rate": 1.0,
+    "total_llm_responses": 87,
+    "valid_json_responses": 87
+  }
+}

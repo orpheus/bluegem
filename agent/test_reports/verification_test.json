@@ -1,0 +1,48 @@
+{
+  "report_metadata": {
+    "generated_at": "2025-07-06T16:36:54.482567",
+    "total_verifications": 2,
+    "agents_used": [
+      "scrape_verifier",
+      "content_validator",
+      "quality_assessor"
+    ]
+  },
+  "verification_history": [
+    {
+      "status": "verified",
+      "confidence": 1.0,
+      "issues": [],
+      "recommendations": [],
+      "agent_id": "scrape_verifier",
+      "timestamp": "2025-07-06T16:36:54.482386",
+      "metadata": {
+        "content_length": 45000,
+        "method_used": "requests",
+        "status_code": 200
+      }
+    },
+    {
+      "status": "verified",
+      "confidence": 0.86,
+      "issues": [],
+      "recommendations": [],
+      "agent_id": "content_validator",
+      "timestamp": "2025-07-06T16:36:54.482556",
+      "metadata": {
+        "field_scores": {
+          "image_url": 1.0,
+          "product_link": 0.8,
+          "type": 1.0,
+          "description": 0.6,
+          "model_no": 1.0,
+          "qty": 1.0,
+          "consistency": 1.0
+        },
+        "json_parseable": true,
+        "required_fields_present": true
+      }
+    }
+  ],
+  "escalated_cases": []
+}

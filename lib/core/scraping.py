@@ -1,25 +1,16 @@
-import requests
-import time
-import random
 import logging
-import json
 import os
-from typing import Optional, Dict, Any, List, Tuple, Set
-from urllib.parse import urljoin, urlparse
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
-import undetected_chromedriver as uc
-import math
-from firecrawl import FirecrawlApp
-from dotenv import load_dotenv
-from pydantic import BaseModel, Field
-from datetime import datetime
-from enum import Enum
+import random
 import threading
+import time
+from enum import Enum
+from typing import Optional, Dict, Any, List, Tuple, Set
+from urllib.parse import urlparse
+
+import requests
+from dotenv import load_dotenv
+from firecrawl import FirecrawlApp
+from pydantic import BaseModel, Field
 
 # Load environment variables
 load_dotenv()
@@ -233,7 +224,7 @@ class StealthScraper:
 
         Args:
             url: URL to scrape
-            method: "requests", "selenium", "auto", or "firecrawl"
+            method: "requests", "auto", or "firecrawl"
             **kwargs: Additional arguments
 
         Returns:
